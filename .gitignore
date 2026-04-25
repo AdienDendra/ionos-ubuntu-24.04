@@ -1,5 +1,18 @@
-﻿venv/
+﻿# Python
+venv/
 __pycache__/
 *.pyc
+*.log
 .env
+nohup.out
+
+# Linux System (dari SFTP)
+.bashrc
+.bash_history
+.profile
+.wget-hsts
+.config/
+.local/
+
+# Editor
 .vscode/
