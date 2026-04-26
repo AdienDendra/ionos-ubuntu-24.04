@@ -6,8 +6,13 @@ from datetime import datetime, timedelta, timezone
 from dateutil import parser
 from google import genai
 from geopy.geocoders import Nominatim
-from config import API_KEY_GEMINI, INSTRUKSI_AI, LUNAR_ANCHOR, LUNATION_CYCLE
+from config import INSTRUKSI_AI, LUNAR_ANCHOR, LUNATION_CYCLE
 import math
+import os
+from dotenv import load_dotenv
+
+# Load file .env secara otomatis
+load_dotenv()
 
 NAMA_HARI = {
     "Monday": "Senin", "Tuesday": "Selasa", "Wednesday": "Rabu",
@@ -24,8 +29,13 @@ LUNAR_ANCHOR = datetime(*LUNAR_ANCHOR)
 
 app = Flask(__name__)
 
-# Setup Gemini & Geocoder
-client = genai.Client(api_key=API_KEY_GEMINI)
+# Setup Gemini
+API_KEY = os.getenv("GEMINI_API_KEY")
+if not API_KEY:
+    raise ValueError("❌ Kunci Gemini tidak ditemukan di file .env!")
+client = genai.Client(api_key=API_KEY)
+
+# Setup  Geocoder
 geolocator = Nominatim(user_agent="bot_mancing_sydney_pro_adien")
 
 def get_astronomy_data(target_dt, lat, lon):
