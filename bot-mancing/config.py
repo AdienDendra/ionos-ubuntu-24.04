@@ -1,7 +1,7 @@
 # config.py
  
  # Masukkan API Key Gemini Suhu di sini
-API_KEY_GEMINI = "AIzaSyAlpv4voyL3sUXD-YcP2c44VL6Yq98NcIs"
+API_KEY_GEMINI = "AIzaSyDtt_hBu73mDboAZP8M-u-B_EDCGm4jKyE"
 
 # Instruksi khusus untuk kepribadian Tante Gemini
 INSTRUKSI_AI = """

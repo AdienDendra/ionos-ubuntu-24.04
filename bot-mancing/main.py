@@ -28,7 +28,6 @@ app = Flask(__name__)
 client = genai.Client(api_key=API_KEY_GEMINI)
 geolocator = Nominatim(user_agent="bot_mancing_sydney_pro_adien")
 
-
 def get_astronomy_data(target_dt, lat, lon):
     # 1. Base Time & Moon Phase (Global)
     dt_utc = target_dt.replace(hour=12, minute=0) - timedelta(hours=10)
@@ -281,25 +280,89 @@ def buat_laporan(lat, lon, lokasi, target_dt, jam_mulai, jam_selesai):
         # 7. FOOTER & AI ANALYSIS
         #footer_info = f"📍 Sensor: `{f_lat}, {f_lon}`\n🏠 Req: `{lat}, {lon}`\n"
         
-        # AI Failover Logic
-        model_list = ['gemini-2.0-flash', 'gemini-1.5-flash']
-        ai_response = "⚠️ *Analisa AI sedang sibuk, Om.*"
-        model_used = "None"
-
-        for md in model_list:
-            try:
-                prompt = f"Instruksi: {INSTRUKSI_AI}\nLOKASI: {lokasi}\nTANGGAL: {tgl_str}\nDATA:\n{data_points}"
-                res = client.models.generate_content(model=md, contents=prompt)
-                if res.text:
-                    ai_response = res.text
-                    model_used = md
-                    break
-            except: continue
-
-        return f"{header}{data_points}\n*--- ANALISA TANTE GEMINI ({model_used}) ---*\n{ai_response}"
+        # Panggil fungsi AI yang baru
+        analisa_teks, model_aktif = generate_ai_analysis(
+            client, 
+            lokasi, 
+            tgl_str, 
+            data_points, 
+            INSTRUKSI_AI
+        )
+        
+        # Gabungkan semua untuk dikirim ke WA
+        footer = f"\n\n*--- ANALISA TANTE GEMINI ({model_aktif}) ---*\n"
+        pesan_final = f"{header}{data_points}{footer}{analisa_teks}"
+        
+        return pesan_final
 
     except Exception as e:
-        return f"⚠️ Terjadi kesalahan teknis: {str(e)}"
+        return f"⚠️ Gagal memproses data: {str(e)}"
+
+
+def generate_ai_analysis(client, lokasi, tgl_str, data_points, instruksi_ai):
+    """
+    Fungsi dengan list model terbaru termasuk 2.0 dan 2.5
+    """
+    # List model: 2.5 dan 2.0 biasanya stabil di pertengahan 2026
+    model_list = [
+        'gemini-2.5-flash-lite',
+        'gemini-2.5-flash',      # Jagoan terbaru
+        'gemini-2.0-flash',      # Versi stabil 2.0
+        'gemini-1.5-flash',      # Si Badak (Fallback utama)
+        'gemini-1.5-flash-8b'   # Cadangan terakhir
+    ]
+    
+    ai_response = "⚠️ *Analisa AI sedang sibuk, Om.*"
+    model_used = "None"
+
+    # Definisikan prompt di LUAR loop try agar aman
+    prompt_text = (
+        f"Instruksi: {instruksi_ai}\n"
+        f"LOKASI: {lokasi}\n"
+        f"TANGGAL: {tgl_str}\n"
+        f"DATA CUACA:\n{data_points}"
+    )
+
+    print(f"\n🧠 Memulai Analisa AI untuk {lokasi}...")
+
+    for md in model_list:
+        try:
+            print(f"📡 Mencoba model: {md}...") 
+            
+            # Panggil Gemini - Kita coba tanpa prefix 'models/' dulu
+            # Jika masih 404, baru kita tambahkan prefixnya
+            res = client.models.generate_content(
+                model=md, 
+                contents=prompt_text
+            )
+            
+            if res and res.text:
+                ai_response = res.text
+                model_used = md
+                print(f"✅ Berhasil pakai: {md}")
+                break 
+                
+        except Exception as e:
+            # Jika gagal karena 404, coba pakai prefix models/ secara otomatis
+            if "not found" in str(e).lower():
+                try:
+                    print(f"🔄 Mencoba ulang {md} dengan prefix models/...")
+                    res = client.models.generate_content(
+                        model=f"models/{md}", 
+                        contents=prompt_text
+                    )
+                    if res and res.text:
+                        ai_response = res.text
+                        model_used = md
+                        print(f"✅ Berhasil pakai: models/{md}")
+                        break
+                except:
+                    pass
+            
+            print(f"❌ {md} Gagal: {str(e)[:100]}")
+            continue
+
+    return ai_response, model_used
 
 @app.route('/proses', methods=['POST'])
 def proses_pesan():
