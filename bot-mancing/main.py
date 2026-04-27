@@ -279,7 +279,7 @@ def buat_laporan(lat, lon, lokasi, target_dt, jam_mulai, jam_selesai):
                     f"Jam *{jam:02d}:00*\n"
                     f"🌬️ Wind: {wind} km/h | {rain_status} {prec}mm ({prec_prob}%)\n"
                     f"🌊 Wave: {wv}m | Swell: {sw}m | Tide: {tide_val}\n"
-                    f"⏱️ Period: {swp}s | 🌡️ {temp}°C | ⏲️ {pres}hPa\n"
+                    f"⏱️ Per: {swp}s | 🌡️ {temp}°C | ⏲️ {pres}hPa\n"
                     f"{'-'*30}\n"
                 )
                 count += 1
