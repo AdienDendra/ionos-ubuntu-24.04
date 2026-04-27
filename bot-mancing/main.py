@@ -421,7 +421,7 @@ def proses_pesan():
         if new_lat:
             lat, lon, lokasi_nama = new_lat, new_lon, clean_name
         else:
-            return jsonify({"reply": f"❓ Lokasi '{user_loc}' nggak ketemu, Om. Cek ejaan atau pake nama daerah yang lebih umum."})
+            return jsonify({"reply": f"❓ Lokasi '{user_loc}' nggak ketemu, Om. Cek ejaan atau pake nama daerah diarea deket laut."})
     
     # 3. Mitigasi: Jika sudah lewat jam 8 malam (20:00)
     # Otomatis arahkan ke besok pagi jam 04:00
