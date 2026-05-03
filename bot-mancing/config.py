@@ -29,8 +29,8 @@ LUNAR_ANCHOR = (2000, 1, 6, 18, 14)
 LUNATION_CYCLE = 29.530588853
 
 MODEL_LIST = [
+        'gemini-3.1-flash-preview',
         'gemini-3.1-flash-lite-preview',
-        'gemini-3-flash-preview',
         'gemini-2.5-flash',      # Jagoan terbaru
         'gemini-2.5-flash-lite',
         #'gemini-2.0-flash',      # Versi stabil 2.0
