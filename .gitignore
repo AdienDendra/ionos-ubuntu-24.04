@@ -1,4 +1,5 @@
 ﻿# Python
+auth_info/
 venv/
 __pycache__/
 *.pyc
